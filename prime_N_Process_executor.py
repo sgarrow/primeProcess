@@ -8,22 +8,22 @@ def prime_N_Process_executor( ssInLst, numProc ):
 
     kStart = time.time()
     m     = mp.Manager()
-    mmpQ  = m.Queue() # mp.Manager queue must be used here.  
+    mmpQ  = m.Queue() # mp.Manager queue must be used here.
     ssLst = gssl.getStartStopLst(ssInLst,numProc)
 
     with cf.ProcessPoolExecutor() as executor:
 
-        results = [ executor.submit(pa.numPrimesBetween, 
+        results = [ executor.submit(pa.numPrimesBetween,
                                     ssLst[ii],
                                     mmpQ,
                                     'e{}'.format(ii)  ) \
-                    for ii in range(numProc) 
+                    for ii in range(numProc)
                   ]
 
         np1 = 0
         # Can access return value (sort of) directly.
         for f in cf.as_completed(results):
-            np1 += f.result() 
+            np1 += f.result()
 
     np = 0
     while not mmpQ.empty():
@@ -37,5 +37,3 @@ def prime_N_Process_executor( ssInLst, numProc ):
 
     exeTime = time.time() - kStart
     return np, exeTime
-
-

@@ -6,12 +6,12 @@ def numPrimesBetween(ss,q,n): # inclusive of endpoints.
     np = 0
     for num in range(s, e+1):
         if num > 1:
-            is_prime = True
+            isPrime = True
             for i in range(2, num):
                 if (num % i) == 0:
-                    is_prime = False
+                    isPrime = False
                     break
-            if is_prime:
+            if isPrime:
                 #print(' {:3}: {:4} is     prime'.format(n,num))
                 ## Convert the number to a string
                 #n_str = str(num)
@@ -29,4 +29,3 @@ def numPrimesBetween(ss,q,n): # inclusive of endpoints.
     #print(' {}: Num primes numbers from {:4} to {:4} = {:4}'.format(n,s, e, np))
     return np
 #############################################################################
-

@@ -1,4 +1,4 @@
-import pprint as pp
+#import pprint as pp
 
 def getStartStopLst( ssInLst, numProc ):
     start = ssInLst[0]
@@ -9,9 +9,8 @@ def getStartStopLst( ssInLst, numProc ):
         chunkStart = ii*chunkSize + start + ii
         if chunkStart > end:
             break
-        chunkEnd   = chunkStart + chunkSize
-        if chunkEnd > end:
-            chunkEnd = end
+        chunkEnd = chunkStart + chunkSize
+        chunkEnd = min(chunkEnd, end)
         ssLst.append([chunkStart,chunkEnd])
     #pp.pprint(ssLst)
     return ssLst
