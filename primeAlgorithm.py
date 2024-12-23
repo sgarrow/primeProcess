@@ -15,8 +15,8 @@ def numPrimesBetween(n,q,ss): # inclusive of endpoints.
                 #print(' {:3}: {:4} is     prime'.format(n,num))
                 ## Convert the number to a string
                 #n_str = str(num)
-                #if n_str == n_str[::-1]:
-                #    print(' {:3}: {:4} is     prime'.format(n,num))
+                if n_str == n_str[::-1]:
+                    print(' {:3}: {:4} is     prime'.format(n,num))
                 np += 1
             else:
                 pass
