@@ -5,7 +5,9 @@ def prime_1_Process(ssLst):
 
     kStart = time.time()
     q      = queue.Queue() # Simple queue can be used here.
-    np1    = pa.numPrimesBetween(ssLst,q,'f0')
+    np1    = pa.numPrimesBetween( 'f0',   # Process Name.
+                                  q,      # Queue.
+                                  ssLst ) # Iterable.
     np     = 0
 
     while not q.empty():
@@ -15,7 +17,7 @@ def prime_1_Process(ssLst):
     # directly (return) and (2) by placing it in a queue.
     # Both ways are doable via this method so they should agree.
     if np1 != np:
-        print('Error in primt_1_Propress.')
+        print('Error in primt_1_Process.')
 
     exeTime = time.time() - kStart
     return np, exeTime

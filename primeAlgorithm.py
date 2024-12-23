@@ -1,6 +1,6 @@
 import time
 
-def numPrimesBetween(ss,q,n): # inclusive of endpoints.
+def numPrimesBetween(n,q,ss): # inclusive of endpoints.
     s = ss[0]
     e = ss[1]
     np = 0

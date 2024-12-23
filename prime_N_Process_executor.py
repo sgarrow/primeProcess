@@ -13,10 +13,11 @@ def prime_N_Process_executor( ssInLst, numProc ):
 
     with cf.ProcessPoolExecutor() as executor:
 
-        results = [ executor.submit(pa.numPrimesBetween,
-                                    ssLst[ii],
-                                    mmpQ,
-                                    'e{}'.format(ii)  ) \
+
+        results = [ executor.submit( pa.numPrimesBetween,
+                                     'e{}'.format(ii), # Process Name.
+                                     mmpQ,             # Queue.
+                                     ssLst[ii] )       # Iterable.
                     for ii in range(numProc)
                   ]
 
@@ -33,7 +34,7 @@ def prime_N_Process_executor( ssInLst, numProc ):
     # directly (return) and (2) by placing it in a queue.
     # Both ways are doable via this method so they should agree.
     if np1 != np:
-        print('Error in primt_1_Propress.')
+        print('Error in prime_N_Process_executor.')
 
     exeTime = time.time() - kStart
     return np, exeTime

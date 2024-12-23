@@ -16,9 +16,9 @@ def prime_N_Process_bruteForce( ssInLst, numProc ):
     for ii in range(numProc):
         # Cannot access return value from proc directly.
         proc = mp.Process( target = pa.numPrimesBetween,
-                           args   = ( ssLst[ii],
-                                      mpQ,
-                                      'p{}'.format(ii)))
+                           args   = ( 'p{}'.format(ii), # Process Name.
+                                      mpQ,              # Queue.
+                                      ssLst[ii] ))      # Iterable.
         proc.start()
         procLst.append(proc)
 
