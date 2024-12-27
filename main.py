@@ -2,7 +2,7 @@ import oneProc           as op
 import nProcs_bruteForce as npb
 import nProcs_executor   as npe
 import nProcs_pool       as npp
-VER = '\n Version 1.05. 27-Dec-2024.\n'
+VER = '\n Version 1.06. 27-Dec-2024.\n'
 #############################################################################
 
 def printResults( fName, start, end, np, exeTime ):
