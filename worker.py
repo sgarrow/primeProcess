@@ -18,7 +18,7 @@ def getStartStopLst( ssInLst, numProc ):
     return ssLst
 #############################################################################
 
-def numPrimesBetween(n,q,ss): # inclusive of endpoints.
+def worker(n,q,ss): # inclusive of endpoints.
     s = ss[0]
     e = ss[1]
     np = 0

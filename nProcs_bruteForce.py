@@ -1,20 +1,21 @@
 import time
 import multiprocessing as mp
-import primeAlgorithm  as pa
+import worker          as wk
+#############################################################################
 
-def prime_N_Process_bruteForce( ssInLst, numProc ):
+def nProcs_bruteForce( ssInLst, numProc ):
 
     numCpus = mp.cpu_count() # Just FYI.
     print(' Num cpus = {}\n '.format(numCpus))
 
     kStart  = time.time()
     mpQ     = mp.Queue() # mp queue must be used here.
-    ssLst   = pa.getStartStopLst(ssInLst,numProc)
+    ssLst   = wk.getStartStopLst(ssInLst,numProc)
     procLst = []
 
     for ii in range(numProc):
         # Cannot access return value from proc directly.
-        proc = mp.Process( target = pa.numPrimesBetween,
+        proc = mp.Process( target = wk.worker,
                            args   = ( 'p{}'.format(ii), # Process Name.
                                       mpQ,              # Queue.
                                       ssLst[ii] ))      # Iterable.
@@ -32,3 +33,4 @@ def prime_N_Process_bruteForce( ssInLst, numProc ):
         np += mpQ.get()
     exeTime = time.time() - kStart
     return np, exeTime
+#############################################################################
