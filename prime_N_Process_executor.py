@@ -1,7 +1,6 @@
 import time
 import multiprocessing    as mp
 import concurrent.futures as cf
-import getStartStopLst    as gssl
 import primeAlgorithm     as pa
 
 def prime_N_Process_executor( ssInLst, numProc ):
@@ -9,7 +8,7 @@ def prime_N_Process_executor( ssInLst, numProc ):
     kStart = time.time()
     m     = mp.Manager()
     mmpQ  = m.Queue() # mp.Manager queue must be used here.
-    ssLst = gssl.getStartStopLst(ssInLst,numProc)
+    ssLst = pa.getStartStopLst(ssInLst,numProc)
 
     with cf.ProcessPoolExecutor() as executor:
 

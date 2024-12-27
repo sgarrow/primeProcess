@@ -1,5 +1,23 @@
 import time
 
+#import pprint as pp
+
+def getStartStopLst( ssInLst, numProc ):
+    start = ssInLst[0]
+    end   = ssInLst[1]
+    ssLst = []
+    chunkSize  = (end-start)//numProc
+    for ii in range(numProc):
+        chunkStart = ii*chunkSize + start + ii
+        if chunkStart > end:
+            break
+        chunkEnd = chunkStart + chunkSize
+        chunkEnd = min(chunkEnd, end)
+        ssLst.append([chunkStart,chunkEnd])
+    #pp.pprint(ssLst)
+    return ssLst
+#############################################################################
+
 def numPrimesBetween(n,q,ss): # inclusive of endpoints.
     s = ss[0]
     e = ss[1]
@@ -15,8 +33,8 @@ def numPrimesBetween(n,q,ss): # inclusive of endpoints.
                 #print(' {:3}: {:4} is     prime'.format(n,num))
                 ## Convert the number to a string
                 #n_str = str(num)
-                if n_str == n_str[::-1]:
-                    print(' {:3}: {:4} is     prime'.format(n,num))
+                #if n_str == n_str[::-1]:
+                #    print(' {:3}: {:4} is     prime'.format(n,num))
                 np += 1
             else:
                 pass

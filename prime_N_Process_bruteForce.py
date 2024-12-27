@@ -1,6 +1,5 @@
 import time
 import multiprocessing as mp
-import getStartStopLst as gssl
 import primeAlgorithm  as pa
 
 def prime_N_Process_bruteForce( ssInLst, numProc ):
@@ -10,7 +9,7 @@ def prime_N_Process_bruteForce( ssInLst, numProc ):
 
     kStart  = time.time()
     mpQ     = mp.Queue() # mp queue must be used here.
-    ssLst   = gssl.getStartStopLst(ssInLst,numProc)
+    ssLst   = pa.getStartStopLst(ssInLst,numProc)
     procLst = []
 
     for ii in range(numProc):

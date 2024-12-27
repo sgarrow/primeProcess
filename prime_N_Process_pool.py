@@ -1,7 +1,6 @@
 import time
 import functools       as ft
 import multiprocessing as mp
-import getStartStopLst as gssl
 import primeAlgorithm  as pa
 
 def prime_N_Process_pool( ssInLst, numProc ):
@@ -9,9 +8,9 @@ def prime_N_Process_pool( ssInLst, numProc ):
     kStart  = time.time()
     m       = mp.Manager()
     mmpQ    = m.Queue() # mp.Manager queue must be used here.
-    ssLst   = gssl.getStartStopLst(ssInLst,numProc)
+    ssLst   = pa.getStartStopLst(ssInLst,numProc)
+    newFunc = ft.partial( pa.numPrimesBetween, 'pN', mmpQ )
     with mp.Pool( numProc ) as aPool:
-        newFunc = ft.partial( pa.numPrimesBetween, 'pN', mmpQ )
         results = aPool.map( newFunc, ssLst )
 
     np1 = sum(results)
