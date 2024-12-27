@@ -5,7 +5,7 @@ import prime_N_Process_pool       as pNpp
 
 if __name__ == '__main__':
 
-    print('\n Version 1.03. 26-Dec-2024.\n')
+    print('\n Version 1.04. 27-Dec-2024.\n')
 
     start   = 1
     end     = 150000
