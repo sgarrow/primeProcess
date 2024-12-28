@@ -1,33 +1,54 @@
-import oneProc           as op
-import nProcs_bruteForce as npb
-import nProcs_executor   as npe
-import nProcs_pool       as npp
-VER = '\n Version 1.06. 27-Dec-2024.\n'
+import oneProc          as op
+import nProcsBruteForce as npb
+import nProcsExecutor   as npe
+import nProcsPool       as npp
+
+import queue
+import multiprocessing  as mp
+
+VER = '\n Version 1.07. 27-Dec-2024.\n'
 #############################################################################
 
-def printResults( fName, start, end, np, exeTime ):
-    print( fName )
-    print(' Num primes  from {:,} to {:,} = {:,}'.format(start, end, np))
-    print(' Execution Time: {:5.1f} sec\n'.format(exeTime))
+def printResults( fName, inQ, inExeTime ):
+    print( '{} execution time = {:5.1f} seconds.'.format(fName,inExeTime))
+    totalNumPrimes = 0
+    while not inQ.empty():
+        qEl = inQ.get()
+        totalNumPrimes += qEl[1]
+    #    print(' Num primes in {} = {:,}'.format(qEl[0], qEl[1]))
+    print(' Total primes = {:,}'.format(totalNumPrimes))
 #############################################################################
 
 if __name__ == '__main__':
 
+    numCpus = mp.cpu_count() # Just FYI.
     print(VER)
+    print(' Num cpus = {}\n '.format(numCpus))
 
-    start   = 1
-    end     = 100000
+
+    myIterable = [ [    1,  5000], [ 5001, 10000], [10001, 15000],
+                   [15001, 20000], [20001, 25000], [25001, 30000],
+                   [30001, 35000], [35001, 40000], [40001, 45000],
+                   [45001, 50000]
+                 ]
     numProc = 10
+    #numProc = numCpus
 
-    np,exeTime = op.oneProc(            [start,end]             )
-    printResults( ' oneProc',           start, end, np, exeTime )
-    
-    np,exeTime = npb.nProcs_bruteForce( [start,end], numProc    )
-    printResults( ' nProcs_bruteForce', start, end, np, exeTime )
-    
-    np,exeTime = npe.nProcs_executor(   [start,end], numProc    )
-    printResults( ' nProcs_executor',   start, end, np, exeTime )
+    q = queue.Queue() # Simple queue can be used here.
+    exeTime = op.oneProc( myIterable, 1, q )
+    printResults( ' oneProc', q, exeTime )
 
-    np,exeTime = npp.nProcs_pool(       [start,end], numProc    )
-    printResults( ' nProcs_pool',       start, end, np, exeTime )
+    q = mp.Queue()    # mp queue must be used here.
+    exeTime = npb.nProcsBruteForce( myIterable, numProc, q )
+    printResults( ' nProcsBruteForce', q, exeTime )
+    
+    m = mp.Manager()
+    q = m.Queue()     # mp.Manager queue must be used here.
+    exeTime = npe.nProcsExecutor( myIterable, numProc, q )
+    printResults( ' nProcsExecutor', q, exeTime )
+    
+    m = mp.Manager()
+    q = m.Queue()     # mp.Manager queue must be used here.
+    exeTime = npp.nProcsPool( myIterable, numProc, q )
+    printResults( ' nProcsPool', q, exeTime )
 #############################################################################
