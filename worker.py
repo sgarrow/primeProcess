@@ -1,20 +1,24 @@
-import time
 import math
-import pprint as pp
 #############################################################################
 
-def chunkify(inLst, numChunks):
+def chunkify( inLst, numChunks ):
 
-    # chunkify([ 'a','b','c','d','e','f','g','h'] , 3) =
-    # [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h']]
+    # chunkify([ 'a','b','c','d','e','f','g','h' ], 3) =
+    # [ ['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h'] ]
+
+    # chunkify([ 'a','b','c','d','e','f','g','h' ], 1] =
+    # [ [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' ] ]
 
     chunkSize = int(math.ceil(len(inLst)/numChunks))
-    chunks = [inLst[x:x+chunkSize] for x in range(0, len(inLst), chunkSize)]
+
+    chunks = [ inLst[x:x+chunkSize] for x in \
+               range(0, len(inLst), chunkSize) 
+             ]
 
     return chunks
 #############################################################################
 
-def worker(procName,q,iterableLst): # inclusive of endpoints.
+def worker( procName, q, iterableLst ): # inclusive of endpoints.
     for el in iterableLst:
         s = el[0]
         e = el[1]

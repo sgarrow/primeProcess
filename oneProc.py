@@ -1,16 +1,19 @@
 import time
 import worker as wk
-#############################################################
+##############################################################
 
-def oneProc(inIterable, numProc, q):
+def oneProc( flatIterableIn, numProc, q ):
 
     kStart       = time.time()
-    iterableElem = wk.chunkify(inIterable,1)
-    results = []
-    for el in iterableElem:
-        rtnLst = wk.worker( 'f0', # Process Name.
+    chunkedIterable = wk.chunkify( flatIterableIn, 1 )
+    results      = []
+
+    for el in chunkedIterable:    # Only 1 chunk here.
+        rtnLst = wk.worker( 'f0', # Process Name (hard coded).
                             q,    # Queue.
                             el )  # Element.
-        results.append(rtnLst)    # [iterableElem, numPrimes]
-    return time.time() - kStart 
-#############################################################
+        results.append(rtnLst)    # [procName, el, np] 
+    #print(results)
+
+    return time.time() - kStart
+##############################################################

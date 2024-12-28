@@ -1,22 +1,19 @@
 import time
-import multiprocessing    as mp
 import concurrent.futures as cf
 import worker             as wk
 ######################################################################
 
-def nProcsExecutor( inIterable, numProc, q ):
+def nProcsExecutor( flatIterableIn, numProc, q ):
 
     kStart      = time.time()
-    iterableElem = wk.chunkify(inIterable,numProc)
+    chunkedIterable = wk.chunkify( flatIterableIn, numProc )
 
     with cf.ProcessPoolExecutor() as executor:
-
-
         results = [ executor.submit( wk.worker,
                                      'e{}'.format(ii), # Process Name.
                                      q,                # Queue.
-                                     iterableElem[ii] ) # Iterable.
-                    for ii in range(len(inIterable))
+                                     chunkedIterable[ii] ) # Iterable.
+                    for ii in range(len(chunkedIterable))
                   ]
 
         # Can access return value (sort of) directly.
@@ -24,5 +21,5 @@ def nProcsExecutor( inIterable, numProc, q ):
             pass
             #print(f.result())
 
-    return time.time() - kStart 
+    return time.time() - kStart
 ######################################################################
