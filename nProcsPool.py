@@ -4,13 +4,15 @@ import multiprocessing as mp
 import worker          as wk
 ###################################################
 
-def nProcsPool( ssInLst, numProc, q ):
+def nProcsPool( inIterable, numProc, q ):
 
-    kStart  = time.time()
-    ssLst  = wk.chunkify(ssInLst,numProc)
-    newFunc = ft.partial( wk.worker, 'pN', q )
-    with mp.Pool( numProc ) as aPool:
-        results = aPool.map( newFunc, ssLst )
+    kStart      = time.time()
+    iterableElem = wk.chunkify(inIterable,numProc)
+    newFunc     = ft.partial( wk.worker, 'pN', q )
+    with mp.Pool( len(iterableElem) ) as aPool:
+        results = aPool.map( newFunc, iterableElem )
     #print(results)
 
     return time.time() - kStart 
+###################################################
+

@@ -4,10 +4,10 @@ import concurrent.futures as cf
 import worker             as wk
 ######################################################################
 
-def nProcsExecutor( ssInLst, numProc, q ):
+def nProcsExecutor( inIterable, numProc, q ):
 
-    kStart = time.time()
-    ssLst  = wk.chunkify(ssInLst,numProc)
+    kStart      = time.time()
+    iterableElem = wk.chunkify(inIterable,numProc)
 
     with cf.ProcessPoolExecutor() as executor:
 
@@ -15,8 +15,8 @@ def nProcsExecutor( ssInLst, numProc, q ):
         results = [ executor.submit( wk.worker,
                                      'e{}'.format(ii), # Process Name.
                                      q,                # Queue.
-                                     ssLst[ii] )       # Iterable.
-                    for ii in range(numProc)
+                                     iterableElem[ii] ) # Iterable.
+                    for ii in range(len(inIterable))
                   ]
 
         # Can access return value (sort of) directly.

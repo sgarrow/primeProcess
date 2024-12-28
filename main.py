@@ -6,24 +6,24 @@ import nProcsPool       as npp
 import queue
 import multiprocessing  as mp
 
-VER = '\n Version 1.07. 27-Dec-2024.\n'
+VER = '\n Version 1.08. 28-Dec-2024.\n'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
-    print( '{} execution time = {:5.1f} seconds.'.format(fName,inExeTime))
+    print( '{:<18} execution time = {:5.1f} seconds.'.format(fName,inExeTime))
     totalNumPrimes = 0
     while not inQ.empty():
         qEl = inQ.get()
-        totalNumPrimes += qEl[1]
-    #    print(' Num primes in {} = {:,}'.format(qEl[0], qEl[1]))
-    print(' Total primes = {:,}'.format(totalNumPrimes))
+        totalNumPrimes += qEl[2]
+        print(' (proc = {}) Num primes in {} = {:,}'.format(qEl[0], qEl[1], qEl[2]))
+    print(' Total primes = {:,}\n'.format(totalNumPrimes))
 #############################################################################
 
 if __name__ == '__main__':
 
-    numCpus = mp.cpu_count() # Just FYI.
+    numCores = mp.cpu_count() # Just FYI.
     print(VER)
-    print(' Num cpus = {}\n '.format(numCpus))
+    print(' Num Cores = {}\n '.format(numCores))
 
 
     myIterable = [ [    1,  5000], [ 5001, 10000], [10001, 15000],
@@ -31,13 +31,13 @@ if __name__ == '__main__':
                    [30001, 35000], [35001, 40000], [40001, 45000],
                    [45001, 50000]
                  ]
-    numProc = 10
-    #numProc = numCpus
+    numProc = 17
+    numProc = numCores
 
     q = queue.Queue() # Simple queue can be used here.
     exeTime = op.oneProc( myIterable, 1, q )
     printResults( ' oneProc', q, exeTime )
-
+    
     q = mp.Queue()    # mp queue must be used here.
     exeTime = npb.nProcsBruteForce( myIterable, numProc, q )
     printResults( ' nProcsBruteForce', q, exeTime )

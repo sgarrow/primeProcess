@@ -5,19 +5,11 @@ import pprint as pp
 
 def chunkify(inLst, numChunks):
 
+    # chunkify([ 'a','b','c','d','e','f','g','h'] , 3) =
+    # [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h']]
+
     chunkSize = int(math.ceil(len(inLst)/numChunks))
     chunks = [inLst[x:x+chunkSize] for x in range(0, len(inLst), chunkSize)]
-
-    #print()
-    #print('numChunks',numChunks)
-    #print('chunkSize',chunkSize)
-    #print()
-    #pp.pprint(inLst)
-    #print()
-    #for el in chunks:
-    #    print(el)
-    #print(chunks)
-    #print()
 
     return chunks
 #############################################################################
@@ -35,16 +27,8 @@ def worker(procName,q,iterableLst): # inclusive of endpoints.
                         isPrime = False
                         break
                 if isPrime:
-                    #print(' {:3}: {:4} is     prime'.format(procName,num))
                     np += 1
-                else:
-                    pass
-                    #print(' {:3}: {:4} is not prime'.format(procName,num))
-            else:
-                pass
-                #print(' {:3}: {:4} is not prime'.format(procName,num))
-        answer = [iterableLst, np]
-        q.put( answer )
-        time.sleep(.1)
-    return answer
+        answer = [procName, el, np]
+        q.put( answer )   # Put the answer in the q
+    return answer         # and return it directly.
 #############################################################################

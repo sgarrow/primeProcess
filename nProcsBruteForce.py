@@ -3,18 +3,18 @@ import multiprocessing as mp
 import worker          as wk
 #######################################################################
 
-def nProcsBruteForce( ssInLst, numProc, q ):
+def nProcsBruteForce( inIterable, numProc, q ):
 
-    kStart  = time.time()
-    ssLst   = wk.chunkify(ssInLst,numProc)
-    procLst = []
+    kStart      = time.time()
+    iterableElem = wk.chunkify(inIterable,numProc)
+    procLst     = []
 
-    for ii in range(numProc):
+    for ii in range(len(iterableElem)):
         # Cannot access return value from proc directly.
         proc = mp.Process( target = wk.worker,
-                           args   = ( 'p{}'.format(ii), # Process Name.
-                                      q,                # Queue.
-                                      ssLst[ii] ))      # Iterable.
+                           args   = ( 'bf{}'.format(ii), # Process Name.
+                                      q,                 # Queue.
+                                      iterableElem[ii] )) # Iterable.
         proc.start()
         procLst.append(proc)
 
