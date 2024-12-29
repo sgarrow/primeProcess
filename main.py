@@ -1,4 +1,5 @@
 import queue
+import pprint           as pp
 import multiprocessing  as mp
 import oneProc          as op
 import nProcsBruteForce as npb
@@ -6,23 +7,14 @@ import nProcsExecutor   as npe
 import nProcsPool       as npp
 import worker           as wrk
 
-VER = '\n Version 1.12. 28-Dec-2024.'
+VER = '\n Version 1.13. 29-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
-
-    print( '{:<18} execution time = {:5.1f} seconds.'.\
-        format(fName,inExeTime))
-
-    totalNumPrimes = 0
     while not inQ.empty():
         qEl = inQ.get()
-        totalNumPrimes += qEl[2]
-
-        print(' (proc = {}) Num primes in {} = {:,}'.\
-            format(qEl[0], qEl[1], qEl[2]))
-
-    print(' Total primes = {:,}\n'.format(totalNumPrimes))
+        print(' {}'.format(pp.pformat(qEl)))
+    print( ' {} execution time = {:5.1f} sec.\n'.format(fName,inExeTime))
 #############################################################################
 
 def doWrk( inNumProc, inFlatIterable, inWrkFunc ):
@@ -30,21 +22,21 @@ def doWrk( inNumProc, inFlatIterable, inWrkFunc ):
     if 0 < numProc <= numCores:
         q = queue.Queue() # Simple queue can be used here.
         exeTime = op.oneProc( inFlatIterable, 1, q, inWrkFunc )
-        printResults( ' oneProc', q, exeTime )
+        printResults( 'oneProc', q, exeTime )
     
         q = mp.Queue()    # mp queue must be used here.
         exeTime = npb.nProcsBruteForce(inFlatIterable,inNumProc,q,inWrkFunc)
-        printResults( ' nProcsBruteForce', q, exeTime )
+        printResults( 'nProcsBruteForce', q, exeTime )
     
         m = mp.Manager()
         q = m.Queue()     # mp.Manager queue must be used here.
         exeTime = npe.nProcsExecutor(inFlatIterable,inNumProc,q,inWrkFunc)
-        printResults( ' nProcsExecutor', q, exeTime )
+        printResults( 'nProcsExecutor', q, exeTime )
     
         m = mp.Manager()
         q = m.Queue()     # mp.Manager queue must be used here.
         exeTime = npp.nProcsPool(inFlatIterable,inNumProc,q,inWrkFunc)
-        printResults( ' nProcsPool', q, exeTime )
+        printResults( 'nProcsPool', q, exeTime )
     else:
         status = ' FAIL\n'
     return status
@@ -74,8 +66,7 @@ if __name__ == '__main__':
     ###############
     flatIterable = [ 'f0.txt',  'f1.txt',  'f2.txt', 'f3.txt',
                      'f4.txt',  'f5.txt',  'f6.txt', 'f7.txt',
-                     'f8.txt',  'f9.txt',  'f10.txt','f11.txt',
-                     'f12.txt', 'f13.txt'
+                     'f8.txt',  'f9.txt',  'f10.txt','f11.txt'
                    ]
     wrkFunc = wrk.fileWorker
     status = doWrk( numProc, flatIterable, wrkFunc )

@@ -1,5 +1,6 @@
 import math
 import time
+import random
 #############################################################################
 
 def chunkify( inLst, numChunks ):
@@ -33,16 +34,18 @@ def primeWorker( procName, q, iterableLst ): # inclusive of endpoints.
                         break
                 if isPrime:
                     np += 1
-        answer = [procName, el, np]
+        answer = {'ProcName':procName, 'item':el, 'result':np}
         q.put( answer )   # Put the answer in the q
     return answer         # and return it directly.
 #############################################################################
 
 def fileWorker( procName, q, iterableLst ):
+    # This doesn't actually open/process a file but just
+    # simulates that by sleeping for a random amount of time.
     for el in iterableLst:
-        sleepTime = 1
+        sleepTime = round(random.uniform(0.1, 1.0),1)
         time.sleep(sleepTime)
-        answer = [procName, el, sleepTime]
+        answer = {'ProcName':procName, 'item':el, 'result':sleepTime}
         q.put( answer )   # Put the answer in the q
     return answer         # and return it directly.
 #############################################################################
