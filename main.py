@@ -5,7 +5,7 @@ import nProcsBruteForce as npb
 import nProcsExecutor   as npe
 import nProcsPool       as npp
 
-VER = '\n Version 1.09. 28-Dec-2024.'
+VER = '\n Version 1.10. 28-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
@@ -32,11 +32,13 @@ if __name__ == '__main__':
     print(' Num Cores Available = {}'.format(numCores))
 
 
+    # Change value of flatIterable as desired.
     flatIterable = [ [    1,  5000], [ 5001, 10000], [10001, 15000],
                      [15001, 20000], [20001, 25000], [25001, 30000],
                      [30001, 35000], [35001, 40000], [40001, 45000],
                      [45001, 50000]
                    ]
+    # Change value of numProcs as desired.
     numProc = 7
     #numProc = numCores
     print(' Num Cores Requested = {}\n'.format(numProc))
