@@ -3,7 +3,7 @@ import multiprocessing as mp
 import worker          as wk
 ################################################################
 
-def nProcsBruteForce( flatIterableIn, numProc, q ):
+def nProcsBruteForce( flatIterableIn, numProc, q, wrkF  ):
 
     kStart      = time.time()
     chunkedIterable = wk.chunkify(flatIterableIn,numProc)
@@ -12,7 +12,7 @@ def nProcsBruteForce( flatIterableIn, numProc, q ):
     for ii in range(len(chunkedIterable)):
         # Cannot access return value from proc directly.
         proc = mp.Process( 
-               target = wk.worker,
+               target = wrkF,
                args   = ( 'bf{}'.format(ii),     # Process Name.
                           q,                     # Queue.
                           chunkedIterable[ii] )) # Iterable.

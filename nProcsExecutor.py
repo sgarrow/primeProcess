@@ -3,13 +3,13 @@ import concurrent.futures as cf
 import worker             as wk
 ######################################################################
 
-def nProcsExecutor( flatIterableIn, numProc, q ):
+def nProcsExecutor( flatIterableIn, numProc, q, wrkF  ):
 
     kStart      = time.time()
     chunkedIterable = wk.chunkify( flatIterableIn, numProc )
 
     with cf.ProcessPoolExecutor() as executor:
-        results = [ executor.submit( wk.worker,
+        results = [ executor.submit( wrkF,
                                      'e{}'.format(ii), # Process Name.
                                      q,                # Queue.
                                      chunkedIterable[ii] ) # Iterable.

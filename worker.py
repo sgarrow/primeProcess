@@ -1,4 +1,5 @@
 import math
+import time
 #############################################################################
 
 def chunkify( inLst, numChunks ):
@@ -18,7 +19,7 @@ def chunkify( inLst, numChunks ):
     return chunks
 #############################################################################
 
-def worker( procName, q, iterableLst ): # inclusive of endpoints.
+def primeWorker( procName, q, iterableLst ): # inclusive of endpoints.
     for el in iterableLst:
         s = el[0]
         e = el[1]
@@ -36,3 +37,13 @@ def worker( procName, q, iterableLst ): # inclusive of endpoints.
         q.put( answer )   # Put the answer in the q
     return answer         # and return it directly.
 #############################################################################
+
+def fileWorker( procName, q, iterableLst ):
+    for el in iterableLst:
+        sleepTime = 1
+        time.sleep(sleepTime)
+        answer = [procName, el, sleepTime]
+        q.put( answer )   # Put the answer in the q
+    return answer         # and return it directly.
+#############################################################################
+
