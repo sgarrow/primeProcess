@@ -1,17 +1,17 @@
 To run this project: python main.py
 It (the worker function) finds the number of prime numbers < 50,001.
 
-Most Python scripts run on a single core, but PCs have multiple cores. It's 
+Most Python scripts run on a single core, but PCs have multiple cores. It's
 possible to write Python scripts that divide up the work and have each of
-those divisions run simultaneously on separate cores.  This project 
+those divisions run simultaneously on separate cores.  This project
 demonstrates three different ways of doing just that.  Assume you have a list
 (an iterable) of say 10 files and you want to process each one of them with a
-function called "worker".  
+function called "worker".
 
-Normally it would be done like this: for ii in length(fList): 
-                                          worker(fList[ii])    
+Normally it would be done like this: for ii in len(fList):
+                                         worker(fList[ii])
 
-CONCEPTUALLY: By using multiple, say, 2 cores can be done like this:
+CONCEPTUALLY: By using multiple, say 2, cores it can be done like this:
 
 On core1:                         simultaneously on core2:
 --------------------------------  ------------------------------------------
@@ -52,19 +52,20 @@ A summary/comparison of the three multi-core methods follows.
         Can return results directly:  NO          YES       YES
 Can give each process a unique name:  YES         YES       NO
 
-During development I recommend getting your use case running via all 3
+During development I recommend getting your use case running via all
 methods and verify that each gives the same answer.  Then, if I had to
-which one to go to production with, go with executor.
+choose which one to go to production with, I'd go with executor.
 
 Note, in particular, the worker function's result (returned value, if any)
-cannot be returned with the bruteForce method.  So, what worker functions
-do is place anything it wants to return in a "queue".  The q is passed 
-from the top process (main) all the way down to the worker and then back up.
+cannot be returned directly with the bruteForce method.  So, what th worker
+functions does is place anything it wants to return in a "queue".  The q is
+passed from the top process (main) all the way down to the worker and then
+back up.
 
-Be aware that if 10 processes are running then they will/may be writing to the q
-simultaneously! That's okay, the q's are thread/process safe.  It's amazing.
+Be aware that if 10 processes are running then they will/may be writing to
+the q simultaneously! That's okay, the q's are thread/process safe.
 
-Note also that the pool method cannot assign a unique name to each of the 
+Note also that the pool method cannot assign a unique name to each of the
 (identical) instances of the process (worker).  Each line of the printed
 result begins with the name of the process that provided that particular
 result.  So, the pool process names are all identical even though they are

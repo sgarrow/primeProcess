@@ -5,7 +5,7 @@ import nProcsBruteForce as npb
 import nProcsExecutor   as npe
 import nProcsPool       as npp
 
-VER = '\n Version 1.10. 28-Dec-2024.'
+VER = '\n Version 1.11. 28-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
@@ -40,7 +40,7 @@ if __name__ == '__main__':
                    ]
     # Change value of numProcs as desired.
     numProc = 7
-    #numProc = numCores
+    numProc = numCores
     print(' Num Cores Requested = {}\n'.format(numProc))
     
     if 0 < numProc <= numCores:
