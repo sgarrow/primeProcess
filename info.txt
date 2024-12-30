@@ -1,5 +1,4 @@
 To run this project: python main.py
-It (the worker function) finds the number of prime numbers < 50,001.
 
 Most Python scripts run on a single core, but PCs have multiple cores. It's
 possible to write Python scripts that divide up the work and have each of
@@ -28,12 +27,9 @@ Here's an example of chunking a (flat) iterable into three chunks.
 chunkify([ a, b, c, d, e, f, g, h ], 3) =
 [ [a, b, c], [d, e, f], [g, h] ]
 
-When you run this program the iterable will be handled the "normal" way and
+When you run this main.py the iterable will be handled the "normal" way and
 all multi-core ways that I've called: brute-force, executor and pool.  Each
 way has pros and cons.  Each of the 4 ways give the same answer. Whew.
-
-Each of the multi-core ways have (basically) the same execution time so
-that's not one of their distinguishing characteristics.
 
 If your iterable has 10 things and you run on 10 cores, then each core will
 process 10/10=1 thing.  If you run on 5 cores, then each core will process
@@ -42,17 +38,20 @@ cores will be used (as you run out of data after 10 cores - each processing
 1 item in the iterable).
 
 I've tried to write everything such that you should only have to change 2
-things to port to your use-case: (1) the function "worker" in file
-worker.py and variable "flatIterable" in file main.py.
+things to port to your use-case: (1) the function "worker" in file worker.py
+and variable "flatIterable" in file main.py.
+
+Each of the multi-core ways have (basically) the same execution time so 
+that's not one of their distinguishing characteristics.
 
 A summary/comparison of the three multi-core methods is provided below.
-During development I recommend getting your use case running via all
-methods and verify that each gives the same answer.  Then, if I had to
-choose which one to go to production with, I'd go with executor.
+During development I recommend getting your use case running via all methods
+and verify that each gives the same answer.  Then, if I had to choose which 
+one to go to production with, I'd go with executor (see bottom paragraph).
 
 
                                           bruteForce  executor  pool
-                Number of lines of code:  18          16        11
+               ~Number of lines of code:  18          16        11
             Can return results directly:  NO (1)      YES       YES
           Can accept multiple arguments:  YES         YES       NO (2)
     Can give each process a unique name:  YES         YES       NO (3)
@@ -60,7 +59,7 @@ choose which one to go to production with, I'd go with executor.
 (1) The worker function's result (returned value, if any) cannot be returned
 directly with the bruteForce method.  So, what the worker function does is
 place anything it wants to return in a queue.  The q is passed from the top
-process (main) all the way down to the worker and then back up.	 Be aware 
+process (main) all the way down to the worker(s) and then back up.  Be aware 
 that if 10 processes are running then they will/may be writing to the q 
 simultaneously! That's okay, the q's are thread/process safe.
 
@@ -73,9 +72,28 @@ instances of the process (worker).  Printed result include with the name of
 the process that provided that particular result.  So, the pool process names
 are all identical even though they are probably different processes.
 
-Two example use cases are provided; (1) calculating the number of prime
-numbers	in a range and (2) processing a list of files.  The second example
-is easier to understand than the first.  The first example doesn't really
-start out with  completely flat list but rather a list of lists (the start
-and stop values of the sub-range).  This complication is handled in the 
-worker function itself.
+Three example use cases are provided; (1) calculating the number of prime
+numbers	in a range and (2) simulated processing a list of files and (3) 
+processing a list of .csv files with the pandas import.
+
+Examples (2) and (3) are easier to understand than example (1). Example 1
+doesn't really start out with a completely flat list but rather a list of
+lists (the start and stop values of the sub-range).  This complication is 
+handled in the worker function itself.
+
+The worker functions for examples (1,2) are contained in file worker.py.
+The worker function for example (3) is contained county_summary.py.
+
+When main.py is run all .py files in this project are used, except one.
+When main.py is run file county_summary_stand_alone.py is not used.
+
+county_summary_stand_alone.py may be run directly via command:
+   python county_summary_stand_alone.py
+
+When county_summary_stand_alone.py is run directly no other file in this
+project is accessed - it is truely, stand alone.
+
+county_summary_stand_alone.py demonstrates using just the executor method for
+implementing multicore processing.  Since this method, as noted above,
+supports returning results directly the queue parameter and it's associated
+processing can be (and was) removed.

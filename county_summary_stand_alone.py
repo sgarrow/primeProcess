@@ -62,7 +62,7 @@ def pandaWorker( procName, chunkedLstSection ):
         inFileBaseName  = os.path.basename(el)
         outFileBaseName = os.path.basename(outTxtFile)
         answer.update({inFileBaseName:{'ProcName':procName, '  result':outFileBaseName}})
-    return answer         # and return it directly.
+    return answer
 #############################################################################
 
 def chunkify( inLst, numChunks ):
