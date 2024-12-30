@@ -83,34 +83,40 @@ import concurrent.futures as cf
 if __name__ == '__main__':
 
     # Set numProc and print user intro text.
-    VER = '\n Version 0.0. 30-Dec-2024.'
+    VER = '\n Version 0.1. 30-Dec-2024.'
     numCores = mp.cpu_count() # Just FYI.
     numProc  = 5     # <-- Change as desired.
     print(VER)
-    print(' Num Cores Available = {}'.format(numCores))
-    print(' Num Cores Requested = {}\n'.format(numProc))
+    print(' Num Cores Available = {}.'.format(numCores))
+    print(' Num Cores Requested = {:2}.\n'.format(numProc))
     #############################################################
+    
+    if 0<numProc<=numCores: # Num procs should be <= numCores.
 
-    # Get/Make a flat list of files and chunkify it.
-    dirPath = './csvFiles'
-    flatIterable = [
-        '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
-        os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
-
-    chunkedIterable = chunkify( flatIterable, numProc )
-    #############################################################
-
-    # Concurrently run numProc instances of function pandaWorker.
-    # Each instance will run on a different core and work on a
-    # different chunk of the chunkedIterable.  Print results.
-    with cf.ProcessPoolExecutor() as executor:
-        results = [ executor.submit( pandaWorker,
-                                     'e{}'.format(ii),     # Process Name.
-                                     chunkedIterable[ii] ) # Iterable.
-                    for ii in range(len(chunkedIterable))
-                  ]
-
-        for f in cf.as_completed(results):
-            print(f.result())
-    #############################################################
+        # Get/Make a flat list of files and chunkify it.
+        dirPath = './csvFiles'
+        flatIterable = [
+            '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
+            os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
+    
+        chunkedIterable = chunkify( flatIterable, numProc )
+        #############################################################
+    
+        # Concurrently run numProc instances of function pandaWorker.
+        # Each instance will run on a different core and work on a
+        # different chunk of the chunkedIterable.  Print results.
+        with cf.ProcessPoolExecutor() as executor:
+            results = [ executor.submit( pandaWorker,
+                                         'e{}'.format(ii),     # Process Name.
+                                         chunkedIterable[ii] ) # Iterable.
+                        for ii in range(len(chunkedIterable))
+                      ]
+    
+            for f in cf.as_completed(results):
+                print(f.result())
+            print()
+    else:
+        print(' ERROR')
+        print()
+#############################################################################
 
