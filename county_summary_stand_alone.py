@@ -1,8 +1,12 @@
-import pandas 
-import sys 
-import random # shg. added this, can eventually remove.
-import time   # shg. added this, can eventually remove. 
-
+import random
+import time
+import math
+import sys
+import os
+import pprint             as pp
+import multiprocessing    as mp
+import concurrent.futures as cf
+import pandas
 ###########################
 
 #calculate crude birth rate, return new dataframe
@@ -21,11 +25,11 @@ def pandaWorker( procName, chunkedLstSection ):
     # Adjust options.
     pandas.set_option('display.max_rows'    , None)
     pandas.set_option('display.max_colwidth', None)
-    pandas.set_option('display.max_columns' , None) 
-    pandas.set_option('display.width', None)
+    pandas.set_option('display.max_columns' , None)
+    pandas.set_option('display.width',        None)
 
     # Create arguments to .read_cvs.
-    userDtype = { 
+    userDtype = {
     "SUMLEV":"string",             "REGION":"string",             "DIVISION":"string",           "STATE":"string",
     "COUNTY":"string",             "STNAME":"string",             "CTYNAME":"string",            "ESTIMATESBASE2020":"Int64",
     "POPESTIMATE2020":"Int64",     "POPESTIMATE2021":"Int64",     "POPESTIMATE2022":"Int64",     "POPESTIMATE2023":"Int64",
@@ -40,8 +44,8 @@ def pandaWorker( procName, chunkedLstSection ):
     cols = list(userDtype.keys())
 
     # Process each file in the list.
+    answer = {}
     for el in chunkedLstSection:
-
         inp        = pandas.read_csv( el, usecols = cols, dtype = userDtype, encoding_errors = 'backslashreplace')
         inp        = crude_br_calc(inp)
         outTxtFile = el.rsplit('.', 1)[0] + '_county_analysis' + '.txt'  # Construct unique out file name.
@@ -55,11 +59,11 @@ def pandaWorker( procName, chunkedLstSection ):
         sleepTime = round(random.uniform(0.1, 1.0),1)
         time.sleep(sleepTime)
 
-        answer = {'ProcName':procName, 'item':el, 'result':outTxtFile}
+        inFileBaseName  = os.path.basename(el)
+        outFileBaseName = os.path.basename(outTxtFile)
+        answer.update({inFileBaseName:{'ProcName':procName, '  result':outFileBaseName}})
     return answer         # and return it directly.
 #############################################################################
-
-import math
 
 def chunkify( inLst, numChunks ):
     # chunkify([ 'a','b','c','d','e','f','g','h' ], 3) =
@@ -71,26 +75,22 @@ def chunkify( inLst, numChunks ):
     chunkSize = int(math.ceil(len(inLst)/numChunks))
 
     chunks = [ inLst[x:x+chunkSize] for x in \
-               range(0, len(inLst), chunkSize) 
+               range(0, len(inLst), chunkSize)
              ]
     return chunks
 #############################################################################
 
-import os
-import multiprocessing    as mp
-import concurrent.futures as cf
-
 if __name__ == '__main__':
 
     # Set numProc and print user intro text.
-    VER = '\n Version 0.1. 30-Dec-2024.'
+    VER = '\n Version 0.2. 30-Dec-2024.'
     numCores = mp.cpu_count() # Just FYI.
     numProc  = 5     # <-- Change as desired.
     print(VER)
     print(' Num Cores Available = {}.'.format(numCores))
     print(' Num Cores Requested = {:2}.\n'.format(numProc))
     #############################################################
-    
+
     if 0<numProc<=numCores: # Num procs should be <= numCores.
 
         # Get/Make a flat list of files and chunkify it.
@@ -98,10 +98,10 @@ if __name__ == '__main__':
         flatIterable = [
             '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
             os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
-    
+
         chunkedIterable = chunkify( flatIterable, numProc )
         #############################################################
-    
+
         # Concurrently run numProc instances of function pandaWorker.
         # Each instance will run on a different core and work on a
         # different chunk of the chunkedIterable.  Print results.
@@ -111,12 +111,11 @@ if __name__ == '__main__':
                                          chunkedIterable[ii] ) # Iterable.
                         for ii in range(len(chunkedIterable))
                       ]
-    
+
             for f in cf.as_completed(results):
-                print(f.result())
-            print()
+                pp.pprint(f.result())
+                print()
     else:
         print(' ERROR')
         print()
 #############################################################################
-
