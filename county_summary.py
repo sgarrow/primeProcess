@@ -87,9 +87,3 @@ def pandaWorker( procName, q, iterableLst ):
         q.put( answer )   # Put the answer in the q
     return answer         # and return it directly.
 ############################################# shg added for readability
-
-# shg added this just for test.
-if __name__ == '__main__':
-    pandaWorker('co-est2023-alldata.csv')
-
-

@@ -1,3 +1,4 @@
+import os
 import queue
 import pprint           as pp
 import multiprocessing  as mp
@@ -9,7 +10,7 @@ import nProcsPool       as npp
 import worker           as wrk
 import county_summary   as pWrk
 
-VER = '\n Version 1.14. 29-Dec-2024.'
+VER = '\n Version 1.15. 29-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
@@ -75,17 +76,13 @@ if __name__ == '__main__':
     #print(status)
     #
     ############### Process a list of panda files.
-    flatIterable = [ 'csvFiles/co-est2023-alldata0.csv',
-                     'csvFiles/co-est2023-alldata1.csv',
-                     'csvFiles/co-est2023-alldata2.csv',
-                     'csvFiles/co-est2023-alldata3.csv',
-                     'csvFiles/co-est2023-alldata4.csv',
-                     'csvFiles/co-est2023-alldata5.csv',
-                     'csvFiles/co-est2023-alldata6.csv',
-                     'csvFiles/co-est2023-alldata7.csv',
-                     'csvFiles/co-est2023-alldata8.csv',
-                     'csvFiles/co-est2023-alldata9.csv',
-                     ]
+    dirPath = './csvFiles'
+    flatIterable = [
+        '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
+        os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
+
+    #pp.pprint(flatIterable)
+
     wrkFunc = pWrk.pandaWorker
     status = doWrk( numProc, flatIterable, wrkFunc )
     print(status)
