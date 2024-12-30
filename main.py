@@ -5,16 +5,19 @@ import oneProc          as op
 import nProcsBruteForce as npb
 import nProcsExecutor   as npe
 import nProcsPool       as npp
-import worker           as wrk
 
-VER = '\n Version 1.13. 29-Dec-2024.'
+import worker           as wrk
+import county_summary   as pWrk
+
+VER = '\n Version 1.14. 29-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
     while not inQ.empty():
         qEl = inQ.get()
-        print(' {}'.format(pp.pformat(qEl)))
+        print(' {}\n'.format(pp.pformat(qEl)))
     print( ' {} execution time = {:5.1f} sec.\n'.format(fName,inExeTime))
+    print('********************************')
 #############################################################################
 
 def doWrk( inNumProc, inFlatIterable, inWrkFunc ):
@@ -46,31 +49,45 @@ if __name__ == '__main__':
 
     status = ' SUCCESS\n'
     numCores = mp.cpu_count() # Just FYI.
-    numProc  = 16 # Change value of numProcs as desired up to numCores.
+    numProc  = 5 # Change value of numProcs as desired up to numCores.
 
     print(VER)
     print(' Num Cores Available = {}'.format(numCores))
     print(' Num Cores Requested = {}\n'.format(numProc))
 
-    ###############
-    flatIterable = [ [    1,  5000], [ 5001, 10000], [10001, 15000],
-                     [15001, 20000], [20001, 25000], [25001, 30000],
-                     [30001, 35000], [35001, 40000], [40001, 45000],
-                     [45001, 50000]
-                   ]
-    wrkFunc = wrk.primeWorker
+    ################ Find number of primes between limits (inclucivce)
+    #flatIterable = [ [    1,  5000], [ 5001, 10000], [10001, 15000],
+    #                 [15001, 20000], [20001, 25000], [25001, 30000],
+    #                 [30001, 35000], [35001, 40000], [40001, 45000],
+    #                 [45001, 50000]
+    #               ]
+    #wrkFunc = wrk.primeWorker
+    #status = doWrk( numProc, flatIterable, wrkFunc )
+    #print(status)
+    #
+    ################ Simulate processing a list of text files.
+    #flatIterable = [ 'f0.txt',  'f1.txt',  'f2.txt', 'f3.txt',
+    #                 'f4.txt',  'f5.txt',  'f6.txt', 'f7.txt',
+    #                 'f8.txt',  'f9.txt',  'f10.txt','f11.txt'
+    #               ]
+    #wrkFunc = wrk.fileWorker
+    #status = doWrk( numProc, flatIterable, wrkFunc )
+    #print(status)
+    #
+    ############### Process a list of panda files.
+    flatIterable = [ 'csvFiles/co-est2023-alldata0.csv',
+                     'csvFiles/co-est2023-alldata1.csv',
+                     'csvFiles/co-est2023-alldata2.csv',
+                     'csvFiles/co-est2023-alldata3.csv',
+                     'csvFiles/co-est2023-alldata4.csv',
+                     'csvFiles/co-est2023-alldata5.csv',
+                     'csvFiles/co-est2023-alldata6.csv',
+                     'csvFiles/co-est2023-alldata7.csv',
+                     'csvFiles/co-est2023-alldata8.csv',
+                     'csvFiles/co-est2023-alldata9.csv',
+                     ]
+    wrkFunc = pWrk.pandaWorker
     status = doWrk( numProc, flatIterable, wrkFunc )
     print(status)
-    ###############
-
-    ###############
-    flatIterable = [ 'f0.txt',  'f1.txt',  'f2.txt', 'f3.txt',
-                     'f4.txt',  'f5.txt',  'f6.txt', 'f7.txt',
-                     'f8.txt',  'f9.txt',  'f10.txt','f11.txt'
-                   ]
-    wrkFunc = wrk.fileWorker
-    status = doWrk( numProc, flatIterable, wrkFunc )
-    print(status)
-    ###############
 
 #############################################################################
