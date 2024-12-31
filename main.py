@@ -10,7 +10,7 @@ import nProcsPool       as npp
 import worker           as wrk
 import county_summary   as pWrk
 
-VER = '\n Version 1.18. 29-Dec-2024.'
+VER = '\n Version 1.19.0. 30-Dec-2024.'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
@@ -27,7 +27,7 @@ def doWrk( inNumProc, inFlatIterable, inWrkFunc ):
         q = queue.Queue() # Simple queue can be used here.
         exeTime = op.oneProc( inFlatIterable, 1, q, inWrkFunc )
         printResults( 'oneProc', q, exeTime )
-    
+        
         q = mp.Queue()    # mp queue must be used here.
         exeTime = npb.nProcsBruteForce(inFlatIterable,inNumProc,q,inWrkFunc)
         printResults( 'nProcsBruteForce', q, exeTime )
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     status = doWrk( numProc, flatIterable, wrkFunc )
     print(status)
     
-    ############### Simulate processing a list of text files.
+    ################ Simulate processing a list of text files.
     flatIterable = [ 'f0.txt',  'f1.txt',  'f2.txt', 'f3.txt',
                      'f4.txt',  'f5.txt',  'f6.txt', 'f7.txt',
                      'f8.txt',  'f9.txt',  'f10.txt','f11.txt'

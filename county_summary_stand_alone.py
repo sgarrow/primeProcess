@@ -9,53 +9,60 @@ import concurrent.futures as cf
 import pandas
 ###########################
 
-#calculate crude birth rate, return new dataframe
-#First argument is the input dataframe
+# Calculate crude birth rate, return new dataframe.
+# Argument is the input pandas dataframe.
 def crude_br_calc(df):
-    #crude birth rate = (number of births in a year / tot population ) * 1000
-    df["CRUDE_BIRTHRATE_2023"] = ( df["BIRTHS2023"]
-                                                   .div(df["POPESTIMATE2023"])
+    # Crude birth rate = (number of births in a year / tot population ) * 1000
+    df['CRUDE_BIRTHRATE_2023'] = ( df['BIRTHS2023']
+                                                   .div(df['POPESTIMATE2023'])
                                                    .mul(1000)
                                                    )
     return df
 ###########################
 
-def pandaWorker( procName, chunkedLstSection ):
+def pandaWorker( procName, chunkedLstSection ): # One instance per core.
 
     # Adjust options.
-    pandas.set_option('display.max_rows'    , None)
-    pandas.set_option('display.max_colwidth', None)
-    pandas.set_option('display.max_columns' , None)
-    pandas.set_option('display.width',        None)
+    optsSetToNone = ['max_rows','max_colwidth','max_columns','width']
+    [pandas.set_option('display.{}'.format(el),None) for el in optsSetToNone]
 
     # Create arguments to .read_cvs.
-    userDtype = {
-    "SUMLEV":"string",             "REGION":"string",             "DIVISION":"string",           "STATE":"string",
-    "COUNTY":"string",             "STNAME":"string",             "CTYNAME":"string",            "ESTIMATESBASE2020":"Int64",
-    "POPESTIMATE2020":"Int64",     "POPESTIMATE2021":"Int64",     "POPESTIMATE2022":"Int64",     "POPESTIMATE2023":"Int64",
-    "NPOPCHG2020":"Int64",         "NPOPCHG2021":"Int64",         "NPOPCHG2022":"Int64",         "NPOPCHG2023":"Int64",
-    "BIRTHS2020":"Int64",          "BIRTHS2021":"Int64",          "BIRTHS2022":"Int64",          "BIRTHS2023":"Int64",
-    "DEATHS2020":"Int64",          "DEATHS2021":"Int64",          "DEATHS2022":"Int64",          "DEATHS2023":"Int64",
-    "NATURALCHG2020":"Int64",      "NATURALCHG2021":"Int64",      "NATURALCHG2022":"Int64",      "NATURALCHG2023":"Int64",
-    "INTERNATIONALMIG2020":"Int64","INTERNATIONALMIG2021":"Int64","INTERNATIONALMIG2022":"Int64","INTERNATIONALMIG2023":"Int64",
-    "DOMESTICMIG2020":"Int64",     "DOMESTICMIG2021":"Int64",     "DOMESTICMIG2022":"Int64",     "DOMESTICMIG2023":"Int64",
-    "NETMIG2020":"Int64",          "NETMIG2021":"Int64",          "NETMIG2022":"Int64",          "NETMIG2023":"Int64"}
+    userDtype = { 'SUMLEV': 'string', 'REGION':'string', 'DIVISION':'string',
+                  'STATE':  'string', 'COUNTY':'string', 'STNAME':  'string',
+                  'CTYNAME':'string', 
+                  'ESTIMATESBASE2020':'Int64' }
 
-    cols = list(userDtype.keys())
+    years   = list(range(2020,2023+1))  # <- Change to process different years.
+
+    bases   = [ 'POPESTIMATE', 'NPOPCHG', 'BIRTHS', 'DEATHS', 'NATURALCHG',
+                'INTERNATIONALMIG', 'DOMESTICMIG',  'NETMIG' ]
+
+    concat  = [ b+str(y)  for b in bases for y in years ]
+    tmpDict = { c:'Int64' for c in concat }
+    userDtype.update(tmpDict) # Manually verified == orig hard-coded dtype.
+    cols    = list(userDtype.keys())
 
     # Process each file in the list.
     answer = {}
     for el in chunkedLstSection:
-        inp        = pandas.read_csv( el, usecols = cols, dtype = userDtype, encoding_errors = 'backslashreplace')
-        inp        = crude_br_calc(inp)
-        outTxtFile = el.rsplit('.', 1)[0] + '_county_analysis' + '.txt'  # Construct unique out file name.
-        origSysOut = sys.stdout            # save orig sys.stdout.
-        sys.stdout = open(outTxtFile,'w')  # set sys.stdout to constructed out file name.
-        print(inp[["STNAME","CTYNAME", "BIRTHS2023", "POPESTIMATE2023", "CRUDE_BIRTHRATE_2023"]])
-        sys.stdout = origSysOut            # restore sys.stdout to orig.
+        inp        = pandas.read_csv( el,                  # csv file.
+                                      usecols = cols,      # Generated above.
+                                      dtype   = userDtype, # Generated above.
+                                      encoding_errors = 
+                                       'backslashreplace') # RE: ~idiots.
 
-        # Since the script runs so fast already I added a sleep to make
-        # the improvment more noticable.  Eventually this needs to be removed.
+        inp        = crude_br_calc(inp)
+        outTxtFile = el.rsplit('.', 1)[0] + '_county_analysis.txt' # Construct unique out fname.
+        origSysOut = sys.stdout           # Save orig sys.stdout.
+        sys.stdout = open(outTxtFile,'w') # Set sys.stdout to out f name.
+
+        print(inp[['STNAME','CTYNAME', 'BIRTHS2023', 
+                   'POPESTIMATE2023',  'CRUDE_BIRTHRATE_2023']])
+
+        sys.stdout = origSysOut           # Restore sys.stdout to orig.
+
+        # Since worker runs fast already, add a sleep to make the
+        # improvment noticable.  Remove when a cpu intensive func run.
         sleepTime = round(random.uniform(0.1, 1.0),1)
         time.sleep(sleepTime)
 
@@ -83,7 +90,7 @@ def chunkify( inLst, numChunks ):
 if __name__ == '__main__':
 
     # Set numProc and print user intro text.
-    VER = '\n Version 0.2. 30-Dec-2024.'
+    VER = '\n Version 0.4. 30-Dec-2024.'
     numCores = mp.cpu_count() # Just FYI.
     numProc  = 5     # <-- Change as desired.
     print(VER)
@@ -91,30 +98,35 @@ if __name__ == '__main__':
     print(' Num Cores Requested = {:2}.\n'.format(numProc))
     #############################################################
 
-    if 0<numProc<=numCores: # Num procs should be <= numCores.
+    if 0 < numProc <= numCores: # Num procs should be <= numCores.
 
         # Get/Make a flat list of files and chunkify it.
-        dirPath = './csvFiles'
+        dirPath = './csvFiles' # Relative to dir this file is in.
         flatIterable = [
             '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
             os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
 
-        chunkedIterable = chunkify( flatIterable, numProc )
+        chunkedIter = chunkify( flatIterable, numProc )
         #############################################################
 
         # Concurrently run numProc instances of function pandaWorker.
         # Each instance will run on a different core and work on a
         # different chunk of the chunkedIterable.  Print results.
+        kStart = time.time()
         with cf.ProcessPoolExecutor() as executor:
-            results = [ executor.submit( pandaWorker,
-                                         'e{}'.format(ii),     # Process Name.
-                                         chunkedIterable[ii] ) # Iterable.
-                        for ii in range(len(chunkedIterable))
-                      ]
+            results =  [                        # Results from all
+              executor.submit(                  #   submits auto-collected.  Cool.
+                pandaWorker,                    # Worker Func for spawns.
+                'e{}'.format(ii),               #   arg: All spawns get a unique Proc Name.
+                chunkedIter[ii] )               #   arg: A chunk of flatIterable.
+              for ii in range(len(chunkedIter)) # Num instances of Worker Func to create,
+            ]                                   #   could be < numProc if numProc>len(flatIter)
+                                                #   ref para [LATENT BUG FIXED] in info.txt.
 
-            for f in cf.as_completed(results):
-                pp.pprint(f.result())
+            for f in cf.as_completed(results):  # Print all collected results.
+                pp.pprint(f.result())           # Each result is a dictionary.
                 print()
+            print(' Execution Time = {:5.1f}\n'.format(time.time() - kStart))
     else:
         print(' ERROR')
         print()

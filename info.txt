@@ -31,11 +31,12 @@ When you run this main.py the iterable will be handled the "normal" way and
 all multi-core ways that I've called: brute-force, executor and pool.  Each
 way has pros and cons.  Each of the 4 ways give the same answer. Whew.
 
-If your iterable has 10 things and you run on 10 cores, then each core will
-process 10/10=1 thing.  If you run on 5 cores, then each core will process
-10/5=2 things.  If you run on 20 cores, it won't crash but, in fact only 10
-cores will be used (as you run out of data after 10 cores - each processing
-1 item in the iterable).
+[LATENT BUG FIXED]
+If your flat iterable has 10 things and you run on 10 cores (numProcs), then
+each core will work on 10/10=1 thing. If numProcs=5, then each core will work
+on 10/5=2 things.  If numProcs=20, it won't crash but, in fact only 10 cores
+will be used (you run out of data after 10 cores - each processing 1 item in
+the iterable).
 
 I've tried to write everything such that you should only have to change 2
 things to port to your use-case: (1) the function "worker" in file worker.py
@@ -73,7 +74,7 @@ the process that provided that particular result.  So, the pool process names
 are all identical even though they are probably different processes.
 
 Three example use cases are provided; (1) calculating the number of prime
-numbers	in a range and (2) simulated processing a list of files and (3) 
+numbers in a range and (2) simulated processing a list of files and (3) 
 processing a list of .csv files with the pandas import.
 
 Examples (2) and (3) are easier to understand than example (1). Example 1
@@ -87,6 +88,7 @@ The worker function for example (3) is contained county_summary.py.
 When main.py is run all .py files in this project are used, except one.
 When main.py is run file county_summary_stand_alone.py is not used.
 
+[EXAMPLE OF MOVING TO PRODUCTION]
 county_summary_stand_alone.py may be run directly via command:
    python county_summary_stand_alone.py
 
@@ -96,4 +98,4 @@ project is accessed - it is truely, stand alone.
 county_summary_stand_alone.py demonstrates using just the executor method for
 implementing multicore processing.  Since this method, as noted above,
 supports returning results directly the queue parameter and it's associated
-processing can be (and was) removed.
+processing can be (and is) removed.
