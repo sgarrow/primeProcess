@@ -7,18 +7,17 @@ import pprint             as pp
 import multiprocessing    as mp
 import concurrent.futures as cf
 import pandas
-###########################
+#############################################################################
 
 # Calculate crude birth rate, return new dataframe.
 # Argument is the input pandas dataframe.
 def crude_br_calc(df):
-    # Crude birth rate = (number of births in a year / tot population ) * 1000
+    # Crude birth rate = (number of births in a year / tot population) * 1000
     df['CRUDE_BIRTHRATE_2023'] = ( df['BIRTHS2023']
-                                                   .div(df['POPESTIMATE2023'])
-                                                   .mul(1000)
-                                                   )
+                                   .div(df['POPESTIMATE2023'])
+                                   .mul(1000))
     return df
-###########################
+#############################################################################
 
 def pandaWorker( procName, chunkedLstSection ): # One instance per core.
 
@@ -26,40 +25,40 @@ def pandaWorker( procName, chunkedLstSection ): # One instance per core.
     optsSetToNone = ['max_rows','max_colwidth','max_columns','width']
     [pandas.set_option('display.{}'.format(el),None) for el in optsSetToNone]
 
-    # Create arguments to .read_cvs.
+    # Create dtype & cols args to .read_cvs via comprehensions and keys().
     userDtype = { 'SUMLEV': 'string', 'REGION':'string', 'DIVISION':'string',
                   'STATE':  'string', 'COUNTY':'string', 'STNAME':  'string',
-                  'CTYNAME':'string', 
-                  'ESTIMATESBASE2020':'Int64' }
+                  'CTYNAME':'string', 'ESTIMATESBASE2020':'Int64' }
 
-    years   = list(range(2020,2023+1))  # <- Change to process different years.
+    years     = list(range(2020,2023+1))  # <- Change to process diff years.
+    bases     = [ 'POPESTIMATE', 'NPOPCHG', 'BIRTHS', 'DEATHS', 'NATURALCHG',
+                  'INTERNATIONALMIG', 'DOMESTICMIG',  'NETMIG' ]
+    concat    = [ b+str(y)  for b in bases for y in years ]
+    tmpDict   = { c:'Int64' for c in concat }
 
-    bases   = [ 'POPESTIMATE', 'NPOPCHG', 'BIRTHS', 'DEATHS', 'NATURALCHG',
-                'INTERNATIONALMIG', 'DOMESTICMIG',  'NETMIG' ]
+    userDtype.update(tmpDict)          # <- dytype arg of .read_csv.
+    cols      = list(userDtype.keys()) # <- cols   arg of .read_csv.
 
-    concat  = [ b+str(y)  for b in bases for y in years ]
-    tmpDict = { c:'Int64' for c in concat }
-    userDtype.update(tmpDict) # Manually verified == orig hard-coded dtype.
-    cols    = list(userDtype.keys())
 
-    # Process each file in the list.
+    # Process each file in the list (a chunck of original flatIterable).
     answer = {}
-    for el in chunkedLstSection:
-        inp        = pandas.read_csv( el,                  # csv file.
-                                      usecols = cols,      # Generated above.
-                                      dtype   = userDtype, # Generated above.
-                                      encoding_errors = 
-                                       'backslashreplace') # RE: ~idiots.
+    for el in chunkedLstSection:       # <- el arg of .read_csv.
+        inp = pandas.read_csv( el,                  # csv file.
+                               usecols = cols,      # Generated above.
+                               dtype   = userDtype, # Generated above.
+                               encoding_errors =
+                                'backslashreplace') # RE: ~idiots.
 
         inp        = crude_br_calc(inp)
-        outTxtFile = el.rsplit('.', 1)[0] + '_county_analysis.txt' # Construct unique out fname.
-        origSysOut = sys.stdout           # Save orig sys.stdout.
-        sys.stdout = open(outTxtFile,'w') # Set sys.stdout to out f name.
+        outFile    = el.rsplit('.', 1)[0] + \
+                     '_county_analysis.txt' # Construct unique out fname.
+        origSysOut = sys.stdout             # Save orig sys.stdout.
+        sys.stdout = open(outFile,'w')      # Set sys.stdout to out f name.
 
-        print(inp[['STNAME','CTYNAME', 'BIRTHS2023', 
+        print(inp[['STNAME','CTYNAME', 'BIRTHS2023',
                    'POPESTIMATE2023',  'CRUDE_BIRTHRATE_2023']])
 
-        sys.stdout = origSysOut           # Restore sys.stdout to orig.
+        sys.stdout = origSysOut             # Restore sys.stdout to orig.
 
         # Since worker runs fast already, add a sleep to make the
         # improvment noticable.  Remove when a cpu intensive func run.
@@ -67,8 +66,9 @@ def pandaWorker( procName, chunkedLstSection ): # One instance per core.
         time.sleep(sleepTime)
 
         inFileBaseName  = os.path.basename(el)
-        outFileBaseName = os.path.basename(outTxtFile)
-        answer.update({inFileBaseName:{'ProcName':procName, '  result':outFileBaseName}})
+        outFileBaseName = os.path.basename(outFile)
+        answer.update({inFileBaseName:{'ProcName': procName,
+                                       '  result': outFileBaseName}})
     return answer
 #############################################################################
 
@@ -90,7 +90,7 @@ def chunkify( inLst, numChunks ):
 if __name__ == '__main__':
 
     # Set numProc and print user intro text.
-    VER = '\n Version 0.4. 30-Dec-2024.'
+    VER = '\n Version 0.5. 30-Dec-2024.'
     numCores = mp.cpu_count() # Just FYI.
     numProc  = 5     # <-- Change as desired.
     print(VER)
@@ -107,7 +107,7 @@ if __name__ == '__main__':
             os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
 
         chunkedIter = chunkify( flatIterable, numProc )
-        #############################################################
+        #########################################################
 
         # Concurrently run numProc instances of function pandaWorker.
         # Each instance will run on a different core and work on a
@@ -115,16 +115,17 @@ if __name__ == '__main__':
         kStart = time.time()
         with cf.ProcessPoolExecutor() as executor:
             results =  [                        # Results from all
-              executor.submit(                  #   submits auto-collected.  Cool.
-                pandaWorker,                    # Worker Func for spawns.
-                'e{}'.format(ii),               #   arg: All spawns get a unique Proc Name.
-                chunkedIter[ii] )               #   arg: A chunk of flatIterable.
-              for ii in range(len(chunkedIter)) # Num instances of Worker Func to create,
-            ]                                   #   could be < numProc if numProc>len(flatIter)
-                                                #   ref para [LATENT BUG FIXED] in info.txt.
+              executor.submit(                  #   submits auto-collected.
+                pandaWorker,                    # Wrk Func for spawn (2 args)
+                'e{}'.format(ii),               #   Unique Proc Name.
+                chunkedIter[ii] )               #   Unique chunk of flatIter.
+              for ii in range(len(chunkedIter)) # Num Wrkr Funcs to create,
+            ]                                   #   could be < numProc ref
+                                                #   para [LATENT BUG FIXED]
+                                                #   in info.txt.
 
-            for f in cf.as_completed(results):  # Print all collected results.
-                pp.pprint(f.result())           # Each result is a dictionary.
+            for f in cf.as_completed(results):  # Print all results.
+                pp.pprint(f.result())           # Each result is a dict.
                 print()
             print(' Execution Time = {:5.1f}\n'.format(time.time() - kStart))
     else:
