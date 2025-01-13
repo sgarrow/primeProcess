@@ -10,7 +10,7 @@ import nProcsPool       as npp
 import worker           as wrk
 import county_summary   as pWrk
 
-VER = '\n Version 1.19.1. 30-Dec-2024.'
+ver = ' v1.19.2 - 12-Jan-2025'
 #############################################################################
 
 def printResults( fName, inQ, inExeTime ):
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     numCores = mp.cpu_count() # Just FYI.
     numProc  = 5 # Change value of numProcs as desired up to numCores.
 
-    print(VER)
+    print(ver)
     print(' Num Cores Available = {}'.format(numCores))
     print(' Num Cores Requested = {}\n'.format(numProc))
 
@@ -80,9 +80,9 @@ if __name__ == '__main__':
     flatIterable = [
         '{}/{}'.format(dirPath,f) for f in os.listdir(dirPath) if \
         os.path.isfile(os.path.join(dirPath, f)) and f.endswith('csv') ]
-
+    
     #pp.pprint(flatIterable)
-
+    
     wrkFunc = pWrk.pandaWorker
     status = doWrk( numProc, flatIterable, wrkFunc )
     print(status)
